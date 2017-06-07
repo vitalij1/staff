@@ -1,10 +1,10 @@
 package com.viro.staff.ui.common;
 
 
-import android.content.Context;
+import android.app.Activity;
 
 public interface Presenter<T extends BaseView>{
-    void onAttach(Context context);
+    void onAttach(Activity context);
     T getView();
     void onDetach();
 }

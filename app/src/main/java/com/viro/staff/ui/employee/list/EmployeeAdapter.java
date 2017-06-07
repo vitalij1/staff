@@ -55,7 +55,7 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         return employees == null ? 0 : employees.size();
     }
 
-    public static interface OnEmployeeClick {
+    public interface OnEmployeeClick {
         void onEmployeeClick(Employee employee);
     }
 

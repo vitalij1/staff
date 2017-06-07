@@ -1,13 +1,16 @@
 package com.viro.staff.ui.employee.list;
 
+import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 
-import com.squareup.otto.Bus;
 import com.viro.staff.StaffApplication;
+import com.viro.staff.bus.MainFragmentBus;
+import com.viro.staff.bus.event.EmployeeEvent;
 import com.viro.staff.data.EmployeeModel;
 import com.viro.staff.data.entity.Employee;
-import com.viro.staff.bus.event.EmployeeEvent;
+import com.viro.staff.di.ActivityComponent;
+import com.viro.staff.di.ActivityModule;
+import com.viro.staff.di.DaggerActivityComponent;
 import com.viro.staff.ui.common.BasePresenter;
 
 import javax.inject.Inject;
@@ -22,7 +25,7 @@ public class EmployeeListPresenterImpl extends BasePresenter<EmployeeListPresent
     EmployeeModel model;
 
     @Inject
-    Bus bus;
+    MainFragmentBus bus;
 
     private Subscription subscription;
 
@@ -45,14 +48,16 @@ public class EmployeeListPresenterImpl extends BasePresenter<EmployeeListPresent
         subscription = model.getEmployees()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(employees -> {
-                    getView().onEmployeeLoaded(employees);
-                });
+                .subscribe(employees -> getView().onEmployeeLoaded(employees));
     }
 
     @Override
-    public void onAttach(Context context) {
-        StaffApplication.getComponent(context).inject(this);
+    public void onAttach(Activity activity) {
+        ActivityComponent component = DaggerActivityComponent.builder()
+                .appComponent(StaffApplication.getComponent(activity))
+                .activityModule(new ActivityModule(activity))
+                .build();
+        component.inject(this);
     }
 
     @Override

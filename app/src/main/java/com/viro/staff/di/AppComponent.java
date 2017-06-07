@@ -1,10 +1,8 @@
 package com.viro.staff.di;
 
 
-import com.viro.staff.ui.MainActivity;
-import com.viro.staff.ui.employee.create.EmployeeEditFragment;
-import com.viro.staff.ui.employee.create.EmployeeEditPresenterImpl;
-import com.viro.staff.ui.employee.list.EmployeeListPresenterImpl;
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
 
 import javax.inject.Singleton;
 
@@ -14,11 +12,8 @@ import dagger.Component;
 @Component(modules = AppModule.class)
 public interface AppComponent {
 
-    void inject(EmployeeListPresenterImpl employeeListPresenter);
+    SqlBrite getSqlBrite();
 
-    void inject(EmployeeEditPresenterImpl employeeEditPresenter);
+    BriteDatabase getBriteDatabase();
 
-    void inject(MainActivity mainActivity);
-
-    void inject(EmployeeEditFragment employeeEditFragment);
 }

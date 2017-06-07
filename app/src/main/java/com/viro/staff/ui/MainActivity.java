@@ -6,24 +6,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 import com.viro.staff.R;
 import com.viro.staff.StaffApplication;
-import com.viro.staff.bus.event.EmployeeEvent;
-import com.viro.staff.bus.event.GoBackEvent;
-import com.viro.staff.ui.employee.create.EmployeeEditFragment;
-import com.viro.staff.ui.employee.create.EmployeeEditFragmentDialog;
+import com.viro.staff.bus.MainFragmentBus;
+import com.viro.staff.di.ActivityComponent;
+import com.viro.staff.di.ActivityModule;
+import com.viro.staff.di.DaggerActivityComponent;
 import com.viro.staff.ui.employee.list.EmployeeListFragment;
 
 import javax.inject.Inject;
 
+import static com.viro.staff.bus.MainFragmentBus.TAG_DEFAULT_VIEW;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG_DEFAULT_VIEW = "defaultView";
+    private ActivityComponent component;
 
     @Inject
-    Bus bus;
+    MainFragmentBus bus;
 
     @Inject
     SharedPreferences preferences;
@@ -32,42 +32,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        StaffApplication.getComponent(this).inject(this);
+        component = DaggerActivityComponent.builder()
+                .appComponent(StaffApplication.getComponent(this))
+                .activityModule(new ActivityModule(this))
+                .build();
+        component.inject(this);
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.main_layout, EmployeeListFragment.newInstance())
                 .commit();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        bus.unregister(this);
+    public ActivityComponent getComponent() {
+        return component;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        bus.register(this);
+        bus.register();
     }
 
-    @Subscribe
-    public void onGoBackEvent(GoBackEvent goBackEvent) {
-        getFragmentManager().popBackStack();
-    }
-
-    @Subscribe
-    public void goOnEditScreen(EmployeeEvent employeeEvent) {
-        if (preferences.getBoolean(TAG_DEFAULT_VIEW, false)) {
-            EmployeeEditFragmentDialog.newInstance(employeeEvent.getId())
-                    .show(getFragmentManager(), "NewDialog");
-        } else {
-            getFragmentManager().beginTransaction()
-                    .addToBackStack("EditFragment")
-                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.main_layout, EmployeeEditFragment.newInstance(employeeEvent.getId()), "EditFragment")
-                    .commit();
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        bus.unregister();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.viro.staff.ui.employee.create;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,10 +11,10 @@ import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.viro.staff.R;
-import com.viro.staff.StaffApplication;
 import com.viro.staff.annotation.LayoutId;
 import com.viro.staff.bus.event.GoBackEvent;
 import com.viro.staff.data.entity.Employee;
+import com.viro.staff.ui.MainActivity;
 import com.viro.staff.ui.common.BaseFragment;
 import com.viro.staff.ui.custom.dialog.YearPickerDialog;
 
@@ -46,6 +47,12 @@ public class EmployeeEditFragment extends BaseFragment<EmployeeEditPresenter> im
 
     private int employeeId;
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        ((MainActivity) getActivity()).getComponent().inject(this);
+    }
+
     public static EmployeeEditFragment newInstance(int employeeId) {
         Bundle args = new Bundle();
         args.putInt(TAG_EMPLOYEE_ID, employeeId);
@@ -57,7 +64,6 @@ public class EmployeeEditFragment extends BaseFragment<EmployeeEditPresenter> im
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        StaffApplication.getComponent(getActivity()).inject(this);
         employeeId = getArguments().getInt(TAG_EMPLOYEE_ID);
         year.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR) - YearPickerDialog.YEAR_MIN_DIFF));
         initSpinners();

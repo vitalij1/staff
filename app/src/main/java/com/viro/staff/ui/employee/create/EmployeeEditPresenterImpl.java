@@ -1,11 +1,15 @@
 package com.viro.staff.ui.employee.create;
 
 
-import android.content.Context;
+import android.app.Activity;
 
 import com.viro.staff.StaffApplication;
+import com.viro.staff.bus.MainFragmentBus;
 import com.viro.staff.data.EmployeeModel;
 import com.viro.staff.data.entity.Employee;
+import com.viro.staff.di.ActivityComponent;
+import com.viro.staff.di.ActivityModule;
+import com.viro.staff.di.DaggerActivityComponent;
 import com.viro.staff.ui.common.BasePresenter;
 
 import javax.inject.Inject;
@@ -19,6 +23,9 @@ public class EmployeeEditPresenterImpl extends BasePresenter<EmployeeEditPresent
     @Inject
     EmployeeModel model;
 
+    @Inject
+    MainFragmentBus bus;
+
     private Subscription subscription;
 
     public EmployeeEditPresenterImpl(EmployeeEditView view) {
@@ -26,8 +33,12 @@ public class EmployeeEditPresenterImpl extends BasePresenter<EmployeeEditPresent
     }
 
     @Override
-    public void onAttach(Context context) {
-        StaffApplication.getComponent(context).inject(this);
+    public void onAttach(Activity context) {
+        ActivityComponent component = DaggerActivityComponent.builder()
+                .appComponent(StaffApplication.getComponent(context))
+                .activityModule(new ActivityModule(context))
+                .build();
+        component.inject(this);
     }
 
     @Override
